@@ -1,0 +1,7 @@
+
+# Linux enviroment
+bin
+include
+lib
+lib64
+*.cfg
