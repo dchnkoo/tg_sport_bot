@@ -12,17 +12,17 @@ from alembic import context
 config = context.config
 
 import os
-from app.settings import (DRIVER, USER,
-                          PASSWORD, HOST, DB)
+from app import settings
 
 env = os.environ
 
 section = config.config_ini_section
-config.set_section_option(section, "DRIVER", env.get("DB_DRIVER", DRIVER))
-config.set_section_option(section, "USER", env.get("POSTGRES_USER", USER))
-config.set_section_option(section, "PASSWORD", env.get("POSTGRES_PASSWORD", PASSWORD))
-config.set_section_option(section, "HOST", env.get("DB_HOST", HOST))
-config.set_section_option(section, "DB", env.get("POSTGRES_DB", DB))
+config.set_section_option(section, "DRIVER", env.get("DB_DRIVER", settings.DRIVER))
+config.set_section_option(section, "USER", env.get("POSTGRES_USER", settings.USER))
+config.set_section_option(section, "PASSWORD", env.get("POSTGRES_PASSWORD", settings.PASSWORD))
+config.set_section_option(section, "HOST", env.get("DB_HOST", settings.HOST))
+config.set_section_option(section, "PORT", env.get("DB_PORT", settings.PORT))
+config.set_section_option(section, "DB", env.get("POSTGRES_DB", settings.DB))
 
 
 # Interpret the config file for Python logging.
@@ -37,7 +37,7 @@ if config.config_file_name is not None:
 
 from app.database.tables import metadata
 
-target_metadata = metadata
+target_metadata = metadata.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
