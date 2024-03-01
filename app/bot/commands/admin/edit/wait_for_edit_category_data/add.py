@@ -4,6 +4,7 @@ from app.bot.keyboards.Reply.cancel import CancelReplyButton
 from app.bot.keyboards.Reply.start import StartButtons
 from .insert_category import get_correct_table, insert_into_table
 
+from aiogram.utils.chat_action import ChatActionSender
 from aiogram.fsm.context import FSMContext
 from .fsm_model import AddFormCategory
 from .....routers.admin import admin
@@ -36,10 +37,14 @@ async def procces_add_category(msg: types.Message, state: FSMContext):
     await state.update_data(category=msg.text)
     data = await state.get_data()
 
-    new_data = await get_correct_table(insert_into_table, **data)
-    keyboard = StartButtons()
+    async with ChatActionSender.typing(
+        bot=msg.bot,
+        chat_id=msg.chat.id,
+    ):
+        new_data = await get_correct_table(insert_into_table, **data)
+        keyboard = StartButtons()
 
-    await state.clear()
+        await state.clear()
     await msg.answer(text=new_data, reply_markup=keyboard.get_buttons())
 
 

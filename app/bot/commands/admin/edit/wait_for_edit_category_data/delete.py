@@ -9,6 +9,7 @@ from .insert_category import get_correct_table
 from .....routers.admin import admin
 from .fsm_model import ConfirmDelete
 
+from aiogram.utils.chat_action import ChatActionSender
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import and_f
 from aiogram import types, F
@@ -21,9 +22,13 @@ async def select_to_delete(callback: types.CallbackQuery, callback_data: DeleteC
     type = StartButtonsTxt.get_attr(data)
     page = int(data.removeprefix(type))
     
-    get = await get_correct_table(get_category_with_pages, **{"type": type, "page": page})
+    async with ChatActionSender.typing(
+        bot=callback.bot,
+        chat_id=callback.message.chat.id,
+    ):
+        get = await get_correct_table(get_category_with_pages, **{"type": type, "page": page})
 
-    keyboard = AdminKeyboardDelete()
+        keyboard = AdminKeyboardDelete()
 
     await callback.message.edit_text(
         text=f"Для видалення категорії з {type} просто натисніть на неї:", 
@@ -56,8 +61,12 @@ async def confirm_delete_category(msg: types.Message, state: FSMContext):
     data = await state.get_data()
     await state.clear()
 
-    delete = await get_correct_table(delete_from_db_by_id, **data)
-    keyboard = StartButtons()
+    async with ChatActionSender.typing(
+        bot=msg.bot,
+        chat_id=msg.chat.id,
+    ):
+        delete = await get_correct_table(delete_from_db_by_id, **data)
+        keyboard = StartButtons()
 
     await msg.answer(
         text=delete,

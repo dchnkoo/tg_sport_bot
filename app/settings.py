@@ -34,3 +34,8 @@ logger.basicConfig(filename=BASE_DIR / "app/app.log", filemode="w",
 # ADMIN settings
 
 DATA_PER_PAGE = 2
+
+MEDIA_LIMIT = 9
+
+VIDEO_LIMIT = 20
+PHOTO_LIMMIT = 5

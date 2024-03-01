@@ -14,7 +14,6 @@ class MediaExesizes(metadata):
     text = Column(String, nullable=True)
     buttons = Column(ARRAY(String, dimensions=3), nullable=True)
 
-
 class CategoryExesizes(metadata):
     __tablename__ = "categoryexesizes"
 

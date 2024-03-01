@@ -15,6 +15,7 @@ async def edit_callback_data_type(callback: types.CallbackQuery, callback_data: 
 
     keyboard = AdminEditKeyBoardCallbackData()
 
+
     await callback.message.edit_text(
         text=f"Які зміни хочете зробити для {type} в {data}?",
         reply_markup=keyboard.get_buttons(type + data)

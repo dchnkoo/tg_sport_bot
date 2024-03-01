@@ -7,12 +7,12 @@ from app.bot.keyboards.CallbackModels.admin import AddCallbackData
 from app.bot.keyboards.Reply.start import StartButtons
 from app.database.model.asyncc import async_db
 
+from aiogram.utils.chat_action import ChatActionSender
 from aiogram.fsm.context import FSMContext
 from .....routers.admin import admin
 from .fsm_models import PostForm
 from aiogram.filters import or_f
 from aiogram import types, F
-
 
 
 @admin.callback_query(
@@ -24,9 +24,13 @@ async def wait_for_post_data(callback: types.CallbackQuery, callback_data: AddCa
     type = StartButtonsTxt.get_attr(data)
     page = int(data.removeprefix(type))
 
-    get = await get_correct_table(get_category_with_pages, **{"type": type, "page": page})
+    async with ChatActionSender.typing(
+        bot=callback.bot,
+        chat_id=callback.message.chat.id,
+    ):
+        get = await get_correct_table(get_category_with_pages, **{"type": type, "page": page})
 
-    keyboard = AdminKeyboardAddPostSelectCategory()
+        keyboard = AdminKeyboardAddPostSelectCategory()
 
     await callback.message.edit_text(
         text=f"Виберіть категорію для якої бажаєте додати пост в {type}", 
@@ -49,14 +53,20 @@ async def start_context_to_add_post(callback: types.CallbackQuery, callback_data
     # get table object
     object = await get_correct_table(None, only_table=True, type=type)
 
-    # get category from table
-    db = async_db()
-    category = await db.async_get_where(object, exp=object.id == identificator, 
-                             all_=False)
-    category = category[0]
 
-    await state.set_state(PostForm.title)
-    await state.update_data(type=category.type)
+    async with ChatActionSender.typing(
+        bot=callback.bot,
+        chat_id=callback.message.chat.id,
+    ):
+        # get category from table
+        db = async_db()
+        category = await db.async_get_where(object, exp=object.id == identificator, 
+                                all_=False)
+        category = category[0]
+
+        await state.set_state(PostForm.title)
+        await state.update_data(type=category.type, object_db=object,
+                                media=[], category=type, buttons=[])
 
     keyboard = CancelReplyButton()
     await callback.message.delete()
@@ -83,15 +93,4 @@ async def cancel_context_to_add_post(msg: types.Message, state: FSMContext):
     await msg.answer(
         text="Скасовано.",
         reply_markup=keyboard
-    )
-
-
-@admin.message(PostForm.title)
-async def get_title_context(msg: types.Message, state: FSMContext):
-
-    data = await state.update_data(title=msg.text)
-    await state.set_state(PostForm.media)
-
-    await msg.answer(
-        text=f"Категорія: {data.get('type')}\nЗаголовок: {data.get('title')}\n\nВідправте до 9 Фото/Відео:"
     )

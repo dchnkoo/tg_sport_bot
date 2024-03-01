@@ -8,3 +8,7 @@ class PostForm(StatesGroup):
     type: str = State()
     text: str = State()
     buttons: List[List[Tuple[str, str]]] = State()
+
+    object_db: object = State()
+    category: str = State()
+    confirm = State()

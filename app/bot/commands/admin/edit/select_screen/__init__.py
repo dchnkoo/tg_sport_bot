@@ -14,7 +14,7 @@ from ....object import CommandsBot
 ))
 async def edit_data(msg: types.Message):
     keyboard = AdminEditKeyBoard()
- 
+
     await msg.answer(
         text="Що бажаєте відредагувати?",
         reply_markup=keyboard.get_buttons()

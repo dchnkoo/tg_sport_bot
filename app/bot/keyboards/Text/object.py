@@ -21,6 +21,9 @@ class CancleBtns:
     cancel = "Відміна"
     home = "На головну"
 
+    skip = "Пропустити"
+    go = "Далі"
+
 class EditBtnTxt(CancleBtns):
     post = "Пост"
     type = "Категорію"
