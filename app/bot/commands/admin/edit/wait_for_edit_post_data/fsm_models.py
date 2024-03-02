@@ -12,3 +12,7 @@ class PostForm(StatesGroup):
     object_db: object = State()
     category: str = State()
     confirm = State()
+
+class ConfirmPostDelete(StatesGroup):
+    identity: str = State()
+    table: object = State()

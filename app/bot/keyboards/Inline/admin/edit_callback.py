@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app.bot.keyboards.Text.object import CancleBtns, EditBtnTxt
 from app.bot.keyboards.CallbackModels.admin import (EditCallbackData, EditCallbackBtn,
-                                                    AddCallbackData, DeleteCallbackData)
+                                                    AddCallbackData, DeleteCallbackData, ConfirmDeletePost)
 
 from typing import List, Tuple
 
@@ -76,6 +76,21 @@ class AdminKeyboardAddPostSelectCategory(InlineKeyboardBuilder):
         self.button(text="<-", callback_data=AddCallbackData(type=callback_data + str(page - 1))) if 1 < page else None
         self.button(text=CancleBtns.back, callback_data=EditCallbackData(type=callback_data))
         self.button(text="->", callback_data=AddCallbackData(type=callback_data + str(page + 1))) if page < total_pages else None
+
+        self.adjust(*(*[1 for _ in data], 3))
+        return self.as_markup()
+    
+class AdminKeyboardDeleteSelectPost(InlineKeyboardBuilder):
+     
+    def get_buttons(self, data: List[Tuple[int, str]], category: str,
+                    callback_data: str, page: int, total_pages: int): 
+        
+        for identity, title in data:
+            self.button(text=title, callback_data=ConfirmDeletePost(type=category, identity=identity))
+
+        self.button(text="<-", callback_data=DeleteCallbackData(type=callback_data + str(page - 1))) if 1 < page else None
+        self.button(text=CancleBtns.back, callback_data=EditCallbackData(type=callback_data))
+        self.button(text="->", callback_data=DeleteCallbackData(type=callback_data + str(page + 1))) if page < total_pages else None
 
         self.adjust(*(*[1 for _ in data], 3))
         return self.as_markup()

@@ -21,6 +21,15 @@ class CommandsBot:
     RECOMENDATIONS = Command(command="/recomandations", description=AdminEditBtnTxt.recomendations)
     TYPETRAININGS = Command(command="/trainigtype", description=AdminEditBtnTxt.typetrainigs)
 
+
+    @staticmethod
+    def get_command_description(command: Command):
+        search = [i.description for i in CommandsBot() if i.command == command]
+
+        if search:
+            return search[0]
+        raise Exception(f"{command} not found")
+
     @staticmethod
     def get_bot_commands(admin: bool = False):
         if admin:

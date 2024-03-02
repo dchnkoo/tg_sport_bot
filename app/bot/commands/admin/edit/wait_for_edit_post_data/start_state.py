@@ -11,7 +11,7 @@ from aiogram.utils.chat_action import ChatActionSender
 from aiogram.fsm.context import FSMContext
 from .....routers.admin import admin
 from .fsm_models import PostForm
-from aiogram.filters import or_f
+from aiogram.filters import or_f, and_f
 from aiogram import types, F
 
 
@@ -62,7 +62,6 @@ async def start_context_to_add_post(callback: types.CallbackQuery, callback_data
         db = async_db()
         category = await db.async_get_where(object, exp=object.id == identificator, 
                                 all_=False)
-        category = category[0]
 
         await state.set_state(PostForm.title)
         await state.update_data(type=category.type, object_db=object,
@@ -78,8 +77,8 @@ async def start_context_to_add_post(callback: types.CallbackQuery, callback_data
 
 
 @admin.message(
-        or_f(PostForm.title, PostForm.media, PostForm.text, PostForm.buttons), 
-        F.text == CancleBtns.cancel
+        and_f(or_f(PostForm.title, PostForm.media, PostForm.text, PostForm.buttons, PostForm.confirm), 
+        F.text == CancleBtns.cancel)
 )
 async def cancel_context_to_add_post(msg: types.Message, state: FSMContext):
 

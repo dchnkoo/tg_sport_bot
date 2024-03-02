@@ -1,5 +1,5 @@
 from pathlib import Path
-import os
+import os, json
 
 
 BASE_DIR = Path(__file__).parent.parent
@@ -17,7 +17,7 @@ PORT = "5432"
 DB = "test"
 
 # ADMIN
-ADMIN = int(ENV.get("ADMIN", "459557833"))
+ADMIN = json.loads(ENV.get("ADMIN", '["459557833", "478107023", "497157380"]'))
 
 # BOT TOKEN
 BOT_TOKEN = "6960403872:AAGYdk_8hHJ3nMppVGevZDA6lQbk9jsuKlA"
@@ -33,7 +33,7 @@ logger.basicConfig(filename=BASE_DIR / "app/app.log", filemode="w",
 
 # ADMIN settings
 
-DATA_PER_PAGE = 2
+DATA_PER_PAGE = 5
 
 MEDIA_LIMIT = 9
 

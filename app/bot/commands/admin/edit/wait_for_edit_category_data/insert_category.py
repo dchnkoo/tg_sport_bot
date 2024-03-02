@@ -6,7 +6,7 @@ from app.settings import logger
 from sqlalchemy.exc import IntegrityError
 
 
-async def get_correct_table(func, media: bool = False, only_table: bool = False, **kwargs) -> str:
+async def get_correct_table(func, media: bool = False, only_table: bool = False, **kwargs) -> object | str:
     db = async_db()
 
     if (media and type) is (False or None):
@@ -42,7 +42,7 @@ async def get_correct_table(func, media: bool = False, only_table: bool = False,
 async def insert_into_table(db: async_db, instance: object, **kwargs):
     category = kwargs.get("category")
 
-    try: await db.async_insert_data(instance, to_dict=True, type=category)
+    try: await db.async_insert_data(instance, get_data=False, type=category)
     except IntegrityError as e:
         logger.error(f"Унікальна помилка:\n\nfunc: {insert_into_table.__name__}\ntable: {instance.__tablename__}\nError: {e}")
         return f"Категорія -> '{category}' вже присутня в системі"

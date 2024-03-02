@@ -15,3 +15,7 @@ class DeleteCallbackData(CallbackData, prefix="del"):
 
 class AddPost(CallbackData, prefix="add-post"):
     type: str
+
+class ConfirmDeletePost(CallbackData, prefix="p-del"):
+    type: str
+    identity: int

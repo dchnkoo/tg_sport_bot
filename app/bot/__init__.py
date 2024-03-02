@@ -1,7 +1,8 @@
-import logging, asyncio
-from app.bot.commands import user, admin
-from .setup import dp, bot
 from .commands.object import CommandsBot
+from app.bot.commands import user, admin
+from aiogram.methods import DeleteWebhook
+from .setup import dp, bot
+import logging, asyncio
 
 admin.include_router(
     user,
@@ -15,6 +16,7 @@ async def start():
     logging.basicConfig(level=logging.INFO)
     await bot.set_my_commands(CommandsBot.get_bot_commands())
 
+    await bot(DeleteWebhook(drop_pending_updates=True))
     await dp.start_polling(bot)
 
 asyncio.run(start())

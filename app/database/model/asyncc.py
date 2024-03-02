@@ -21,7 +21,7 @@ class async_db:
         return self._session()
 
 
-    async def async_insert_data(self, instance: object, to_dict: bool = False, **kwargs):
+    async def async_insert_data(self, instance: object, get_data: bool = True, **kwargs):
         session = await self.get_async_session()
         data_insert = insert(instance).values(**kwargs)
         
@@ -29,16 +29,18 @@ class async_db:
             await transaction.session.execute(data_insert)
             await transaction.commit()
         
-        query = text(''.join([f"{instance.__tablename__}.{k}='{v}' AND " 
-                                for k, v in kwargs.items() if v and isinstance(v, list) is False])[:-5])    
+        if get_data:
+            query = text(''.join([f"{instance.__tablename__}.{k}='{v}' AND " 
+                                    for k, v in kwargs.items() if v and isinstance(v, list) is False])[:-5])    
 
-        return await self.async_get_where(instance, exp=query, all_=False, to_dict=to_dict)    
+            return await self.async_get_where(instance, exp=query, all_=False)    
 
+        return True
 
     async def async_get_where(self, instance: object, 
                   and__ = None, exp = None, 
                   all_: bool = True, count: bool = False,
-                  offset: int = None, limit: int = None, to_dict: bool = False):
+                  offset: int = None, limit: int = None):
 
         query = select(instance)
 
@@ -59,15 +61,9 @@ class async_db:
             result = await transaction.session.execute(query)
 
         if all_:
-            result = result.fetchall()
+            result = [i[0] for i in result.fetchall()]
         else:
-            result = result.fetchone()
-
-        if to_dict:
-            if isinstance(result, list):
-                result = [i._asdict() for i in result]
-            else:
-                result = result._asdict() if result else None
+            result = result.fetchone()[0]
         
         return result if not count_items else [result, count_items]
 
@@ -102,7 +98,7 @@ class async_db:
 
 
     async def async_update_data(self, instance: object,
-                    and__ = None, exp = None, to_dict: bool = False, **kwargs):
+                    and__ = None, exp = None, **kwargs):
         if and__:
             query = update(instance).where(and_(*and__)).values(**kwargs)
         else:
@@ -114,7 +110,7 @@ class async_db:
             await transaction.session.execute(query)
             await transaction.commit()
 
-        return await self.async_get_where(instance, and__, exp, all_=False, to_dict=to_dict)
+        return await self.async_get_where(instance, and__, exp, all_=False)
 
 
 
@@ -130,38 +126,3 @@ class async_db:
         async with session.begin() as transaction:
             await transaction.session.execute(query)
             await transaction.commit()
-
-
-
-    async def async_join_data(self, table_1: object, table_2: object, 
-                              table_2exp: Any = None, table_2and: Tuple[object] = None, 
-                              exp = None, and__ = None):
-        
-        if table_2exp is not None:
-            query = select(table_1, table_2).join(table_2, table_2exp)
-        elif table_2and is not None:
-            query = select(table_1, table_2).join(table_2, and_(*table_2and))
-
-
-        if exp is not None:
-            query = query.where(exp)
-        elif and__ is not None:
-            query = query.where(and_(*and__))
-
-        if query is None:
-            raise ValueError("Check instances and expression")
-
-        session = await self.get_async_session()
-
-        async with session.begin() as transaction:
-            result = await transaction.session.execute(query)
-
-        one = table_1.columns.keys()
-        two = table_2.columns.keys()
-        oneLen = len(one)
-        twoLen = len(two)
-
-        result = result.fetchone()
-
-
-        return {table_1.name: dict(zip(one, result[0:oneLen])), table_2.name: dict(zip(two, result[oneLen:oneLen+twoLen]))} if result else {}

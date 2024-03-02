@@ -1,0 +1,31 @@
+'2024-03-02 21:12:39,420 - INFO: Start polling'
+'2024-03-02 21:12:39,469 - INFO: Run polling for bot @TestDchnkooBot id=6960403872 - 'TestDchnkooBot''
+'2024-03-02 21:12:42,611 - INFO: Update id=984024633 is handled. Duration 212 ms by bot id=6960403872'
+'2024-03-02 21:12:44,618 - INFO: Update id=984024634 is handled. Duration 201 ms by bot id=6960403872'
+'2024-03-02 21:12:50,289 - ERROR: Помилка:
+
+func: get_patrition_data
+
+Error: not enough values to unpack (expected 2, got 0)'
+'2024-03-02 21:12:50,521 - INFO: Update id=984024635 is handled. Duration 267 ms by bot id=6960403872'
+'2024-03-02 21:12:51,734 - INFO: Update id=984024636 is handled. Duration 148 ms by bot id=6960403872'
+'2024-03-02 21:12:52,497 - ERROR: Помилка:
+
+func: get_patrition_data
+
+Error: not enough values to unpack (expected 2, got 0)'
+'2024-03-02 21:12:52,569 - INFO: Update id=984024637 is handled. Duration 85 ms by bot id=6960403872'
+'2024-03-02 21:12:53,865 - INFO: Update id=984024638 is handled. Duration 130 ms by bot id=6960403872'
+'2024-03-02 21:12:54,824 - ERROR: Помилка:
+
+func: get_patrition_data
+
+Error: not enough values to unpack (expected 2, got 0)'
+'2024-03-02 21:12:54,908 - INFO: Update id=984024639 is handled. Duration 97 ms by bot id=6960403872'
+'2024-03-02 21:12:55,958 - INFO: Update id=984024640 is handled. Duration 174 ms by bot id=6960403872'
+'2024-03-02 21:12:56,924 - INFO: Update id=984024641 is handled. Duration 116 ms by bot id=6960403872'
+'2024-03-02 21:12:58,101 - INFO: Update id=984024642 is handled. Duration 168 ms by bot id=6960403872'
+'2024-03-02 21:12:59,775 - INFO: Update id=984024643 is handled. Duration 201 ms by bot id=6960403872'
+'2024-03-02 22:27:55,709 - WARNING: Received SIGINT signal'
+'2024-03-02 22:27:55,709 - INFO: Polling stopped for bot @TestDchnkooBot id=6960403872 - 'TestDchnkooBot''
+'2024-03-02 22:27:55,709 - INFO: Polling stopped'
