@@ -10,3 +10,11 @@ services:
       - .env
     ports:
       - "5432:5432"
+
+  bot:
+    container_name: bot
+    build: 
+      context: .
+    image: dchnkoo/tg-bot
+    env_file:
+      - .env
