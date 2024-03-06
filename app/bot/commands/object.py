@@ -1,40 +1,30 @@
 from aiogram.types.bot_command import BotCommand
-from ..keyboards.Text.object import AdminEditBtnTxt
+from app.bot.keyboards.Text import MainPage
 
-class Command:
-    command: str
-    description: str
 
-    def __init__(self, command: str, description: str, admin: bool = False) -> None:
-        self.command = command
-        self.description = description
-        self.no_prefix = command.removeprefix('/')
-        self.admin = admin
-
-    def __repr__(self) -> str:
-        return str(f"{self.command}:{self.description}")
-
-class CommandsBot:
-    HOME = Command(command="/home", description=AdminEditBtnTxt.home)
-    EDIT = Command(command="/edit", description=AdminEditBtnTxt.adminbtn, admin=True)
-    EXESIZES = Command(command="/exesizes", description=AdminEditBtnTxt.exesizes)
-    RECOMENDATIONS = Command(command="/recomandations", description=AdminEditBtnTxt.recomendations)
-    TYPETRAININGS = Command(command="/trainigtype", description=AdminEditBtnTxt.typetrainigs)
-
+class Commands:
+    HOME = "home"
+    EXESIZES = "exesizes"
+    RECOMENDATIONS = "recomendations"
+    TYPETRAINYNGS = "typetrainyngs"    
+    edit = "edit"
 
     @staticmethod
-    def get_command_description(command: Command):
-        search = [i.description for i in CommandsBot() if i.command == command]
-
-        if search:
-            return search[0]
-        raise Exception(f"{command} not found")
-
-    @staticmethod
-    def get_bot_commands(admin: bool = False):
-        if admin:
-            return [BotCommand(command=i.command, description=i.description) for i in CommandsBot()]
-        return [BotCommand(command=i.command, description=i.description) for i in CommandsBot() if i.admin is False]
+    def get_command_type(command: str):
+        for attr in Commands():
+            if getattr(Commands, attr) == command:
+                return getattr(MainPage, attr)
 
     def __iter__(self):
-        return iter([getattr(self, i) for i in self.__dir__() if isinstance(getattr(self, i), Command)])
+        return iter([i for i in self.__dir__() if i.isupper()])
+
+class CommandsBot:
+    
+    def __init__(self) -> None:
+        for attr in Commands():
+            value = getattr(Commands, attr)
+            setattr(self, attr.lower(), BotCommand(command="/" + value, description=getattr(MainPage, attr)))
+
+
+    def __iter__(self):
+        return iter([getattr(self, i) for i in self.__dir__() if isinstance(getattr(self, i), BotCommand)])

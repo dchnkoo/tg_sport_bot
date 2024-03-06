@@ -27,7 +27,7 @@ class BuildTelegramMsg:
         return [
         types.InputMediaVideo(
             media=types.BufferedInputFile(base64.b64decode(value) if decode else value, filename="some.mp4")
-        ) if content == "VIDEO" else types.InputMediaPhoto(
+        ) if content == "video" else types.InputMediaPhoto(
             media=types.BufferedInputFile(base64.b64decode(value) if decode else value, filename="some.jpg")
         )
           for content, value in self._media

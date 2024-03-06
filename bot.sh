@@ -10,4 +10,4 @@ alembic revision --autogenerate
 
 alembic upgrade head
 
-python3 -m bot.__init__
+python3 -m bot.run

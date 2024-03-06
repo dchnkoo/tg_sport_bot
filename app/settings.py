@@ -17,7 +17,7 @@ PORT = "5432"
 DB = "test"
 
 # ADMIN
-ADMIN = json.loads(ENV.get("ADMIN", '[]'))
+ADMIN = json.loads(ENV.get("ADMIN", ''))
 
 # BOT TOKEN
 BOT_TOKEN = ""
@@ -33,9 +33,11 @@ logger.basicConfig(filename=BASE_DIR / "app/app.log", filemode="w",
 
 # ADMIN settings
 
-DATA_PER_PAGE = 5
+DATA_PER_PAGE = 2
 
 MEDIA_LIMIT = 9
 
 VIDEO_LIMIT = 20
 PHOTO_LIMMIT = 5
+
+BUTTONS_LIMIT = 3
