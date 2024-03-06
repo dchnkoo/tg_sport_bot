@@ -98,6 +98,7 @@ async def confirm_to_delete_post(msg: types.Message, state: FSMContext):
         bot=msg.bot
     ):
         data = await state.get_data()
+        await state.clear()
 
         model: str = data.get("type")
         category: int = data.get("category")

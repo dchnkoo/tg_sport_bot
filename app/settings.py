@@ -17,10 +17,10 @@ PORT = "5432"
 DB = "test"
 
 # ADMIN
-ADMIN = json.loads(ENV.get("ADMIN", ''))
+ADMIN = json.loads(ENV.get("ADMIN", '["459557833"]'))
 
 # BOT TOKEN
-BOT_TOKEN = ""
+BOT_TOKEN = "6960403872:AAGYdk_8hHJ3nMppVGevZDA6lQbk9jsuKlA"
 
 
 # logging
