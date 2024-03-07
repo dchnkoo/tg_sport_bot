@@ -1,8 +1,8 @@
+from .....keyboards.Text import txtranslate, TranslateString
 from .....keyboards.Reply import confirm_btns, admin_btns
 from aiogram.utils.chat_action import ChatActionSender
 from .....models import ModelDataManipulation
 from aiogram.fsm.context import FSMContext
-from .....keyboards.Text import Txt
 from .....FSM import models as fsm
 from aiogram.filters import and_f
 from .....routers import admin
@@ -11,7 +11,7 @@ import base64
 
 
 @admin.message(
-    and_f(fsm.AddPostState.confirm, F.text == Txt.CONFIRM)
+    and_f(fsm.AddPostState.confirm, F.text == txtranslate.CONFIRM)
 )
 async def add_post_to_db(msg: types.Message, state: FSMContext):
     async with ChatActionSender.typing(
@@ -30,7 +30,7 @@ async def add_post_to_db(msg: types.Message, state: FSMContext):
 
         await state.clear()
         await msg.answer(
-            text=message,
+            text=await TranslateString(message).translate_to_lang(msg.from_user.language_code),
             reply_markup=admin_btns
         )
 
@@ -40,6 +40,8 @@ async def add_post_to_db(msg: types.Message, state: FSMContext):
 )
 async def not_correct_confirmation(msg: types.Message):
     await msg.answer(
-        text="Виберіть один з варіантів нижче:",
+        text=await TranslateString(
+            "Виберіть один з варіантів нижче:"
+        ).translate_to_lang(msg.from_user.language_code),
         reply_markup=confirm_btns
     )

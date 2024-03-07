@@ -1,9 +1,15 @@
-from googletrans import Translator
+__all__ = ["string"]
+
+from aiogoogletrans import Translator
 
 translator = Translator()
 
 
-def translate(text: str, language_code: str):
-    translation = translator.translate(text=text, dest=language_code)
+class TranslateString(str):
 
-    return translation.text
+    def __call__(self, value: str):
+        return self.__new__(self.__class__, value)
+
+    async def translate_to_lang(self, language_code: str):
+        translation = await translator.translate(text=self.__str__(), src="uk", dest=language_code)
+        return translation.text

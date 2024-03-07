@@ -1,9 +1,9 @@
+from .....keyboards.Text import txtranslate, TranslateString
 from .....keyboards.Reply import cancel_btns, admin_btns
 from aiogram.utils.chat_action import ChatActionSender
 from .....models import ModelDataManipulation
 from aiogram.fsm.context import FSMContext
 from ....callbacks import models as clbck
-from .....keyboards.Text import Txt
 from .....FSM import models as fsm
 from aiogram.filters import and_f
 from .....routers import admin
@@ -14,7 +14,7 @@ from aiogram import types, F
     clbck.AddCategory.filter()
 )
 async def start_add_category_context(callback: types.CallbackQuery, callback_data: clbck.AddCategory, state: FSMContext):
-    model = callback_data.type
+    model, language = callback_data.type, callback_data.lang
 
     async with ChatActionSender.typing(
         chat_id=callback.message.chat.id,
@@ -26,7 +26,9 @@ async def start_add_category_context(callback: types.CallbackQuery, callback_dat
         await callback.message.delete()
         await callback.bot.send_message(
             chat_id=callback.message.chat.id,
-            text=f"Введіть назву категорії яку бажаєте додати для {model}:",
+            text=await TranslateString(
+                f"Введіть назву категорії яку бажаєте додати для {model}:"
+            ).translate_to_lang(language),
             reply_markup=cancel_btns
         )
 
@@ -34,7 +36,7 @@ async def start_add_category_context(callback: types.CallbackQuery, callback_dat
 @admin.message(
     and_f(fsm.AddCategoryState.category, 
           F.text, ~F.text.startswith("/"),
-          F.text != Txt.CANCEL_TXT)
+          F.text != txtranslate.CANCEL_TXT)
 )
 async def add_category(msg: types.Message, state: FSMContext):
     async with ChatActionSender.typing(
@@ -53,12 +55,12 @@ async def add_category(msg: types.Message, state: FSMContext):
 
         await msg.answer(
             reply_markup=admin_btns,
-            text=message,
+            text=await TranslateString(message).translate_to_lang(msg.from_user.language_code),
         )
 
 
 @admin.message(
-        and_f(fsm.AddCategoryState.category, F.text == Txt.CANCEL_TXT)
+        and_f(fsm.AddCategoryState.category, F.text == txtranslate.CANCEL_TXT)
 )
 async def cancel_add_category(msg: types.Message, state: FSMContext):
     async with ChatActionSender.typing(
@@ -68,7 +70,9 @@ async def cancel_add_category(msg: types.Message, state: FSMContext):
         await state.clear()
 
         await msg.answer(
-            text="Скасовано",
+            text=await TranslateString(
+                "Скасовано"
+            ).translate_to_lang(msg.from_user.language_code),
             reply_markup=admin_btns
         )
 
@@ -82,5 +86,7 @@ async def not_correct_category_context(msg: types.Message):
         bot=msg.bot
     ):
         await msg.answer(
-            "Введіть коректну назву категорії.",
+            await TranslateString(
+                "Введіть коректну назву категорії."
+            ).translate_to_lang(msg.from_user.language_code),
         )

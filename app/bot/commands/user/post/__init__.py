@@ -1,9 +1,9 @@
+from ....keyboards.Text import txtranslate, TranslateString
 from aiogram.utils.chat_action import ChatActionSender
 from ....keyboards.Inline import inline_pagination
 from ....models import ModelDataManipulation
 from ....msg.builder import BuildTelegramMsg
 from ...callbacks import models as clbks
-from ....keyboards.Text import Txt
 from ....routers import user
 from aiogram import types
 
@@ -16,7 +16,8 @@ async def choose_post_user(callback: types.CallbackQuery, callback_data: clbks.P
         chat_id=callback.message.chat.id,
         bot=callback.bot
     ):
-        model, identity, page = callback_data.type, callback_data.identity, callback_data.page
+        d = callback_data
+        model, identity, page, language = d.type, d.identity, d.page, d.lang
 
         # get category
         category = ModelDataManipulation(model)
@@ -25,17 +26,23 @@ async def choose_post_user(callback: types.CallbackQuery, callback_data: clbks.P
         media_data = ModelDataManipulation(model, media=True)
         get, total = await media_data.get_data_pagination(exp=media_data.table.type == category.type, get_all=False, page=page)
 
+        set_keywords = lambda: {"type": model, "lang": language}
+
+        text = await TranslateString(
+            f"Виберіть пост який бажаєте переглянути для {model} в категорії {category.type}:"
+        ).translate_to_lang(language)
+
         await callback.message.edit_text(
-            text=f"Виберіть пост який бажаєте переглянути для {model} в категорії {category.type}:",
+            text=text,
             reply_markup=inline_pagination(
                 data=get,
                 data_model=clbks.GetUserPost,
-                data_data={"type": model, "category": category.id},
+                data_data=set_keywords() | {"category": category.id},
                 prev_model=clbks.PostFromCategorySelect,
-                prev_data={"type": model, "identity": identity},
-                cancel_txt=Txt.BACK,
+                prev_data=set_keywords() | {"identity": identity},
+                cancel_txt=await txtranslate.BACK.translate_to_lang(language),
                 cancel_model=clbks.UserChooseCategory,
-                cancel_data={"type": model},
+                cancel_data=set_keywords(),
                 page=page,
                 total_pages=total
             )

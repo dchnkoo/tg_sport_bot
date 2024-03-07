@@ -1,5 +1,5 @@
+from .....keyboards.Text import txtranslate, TranslateString
 from .....keyboards.Inline.object import InlineKeyboard
-from .....keyboards.Text import Txt
 from ....callbacks import models
 from .....routers import admin
 from aiogram import types
@@ -9,18 +9,20 @@ from aiogram import types
     models.SelectEditType.filter()
 )
 async def select_edit_type(callback: types.CallbackQuery, callback_data: models.SelectEditType):
-    edit = callback_data.type
+    edit, language = callback_data.type, callback_data.lang
 
     keyboard = InlineKeyboard()
-
-    set_keywords = lambda x: {"type": x}
+    
+    set_keywords = lambda x: {"type": x, "lang": language}
     await callback.message.edit_text(
-        text=f"Виберіть що бажаєте відредагувати в {edit}:",
+
+        text=await TranslateString(f"Виберіть що бажаєте відредагувати в {edit}:").translate_to_lang(language),
+
         reply_markup=keyboard.get_buttons(
             [
-                (Txt.TYPE, models.EditCategory, set_keywords(edit)),
-                (Txt.POST, models.EditPost, set_keywords(edit)),
-                (Txt.CANCEL, models.DeleteCallbackMsg, {})
+                (await txtranslate.TYPE.translate_to_lang(language), models.EditCategory, set_keywords(edit)),
+                (await txtranslate.POST.translate_to_lang(language), models.EditPost, set_keywords(edit)),
+                (txtranslate.CANCEL, models.DeleteCallbackMsg, {})
 
             ], 1
         )

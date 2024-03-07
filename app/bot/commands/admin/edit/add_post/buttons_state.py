@@ -1,8 +1,8 @@
+from .....keyboards.Text import txtranslate, TranslateString
 from aiogram.utils.chat_action import ChatActionSender
 from .....keyboards.Reply import confirm_btns
 from .....msg.builder import BuildTelegramMsg
 from aiogram.fsm.context import FSMContext
-from .....keyboards.Text import Txt
 from .....FSM import models as fsm
 from .....filters import isButtons
 from aiogram.filters import and_f
@@ -29,7 +29,7 @@ async def get_buttons_state(msg: types.Message, state: FSMContext):
     
 
 @admin.message(
-        and_f(fsm.AddPostState.buttons, F.text == Txt.SKIP)
+        and_f(fsm.AddPostState.buttons, F.text == txtranslate.SKIP)
 )
 async def skip_btns_state(msg: types.Message, state: FSMContext):
     async with ChatActionSender.typing(
@@ -61,7 +61,9 @@ async def build_end_send_post_to_confirm(msg: types.Message, data: dict):
     await msg.answer(**message.get_msg())
 
     await msg.answer(
-            text="Додати пост?",
+            text=await TranslateString(
+                "Додати пост?"
+            ).translate_to_lang(msg.from_user.language_code),
             reply_markup=confirm_btns
         )
 
@@ -70,5 +72,7 @@ async def build_end_send_post_to_confirm(msg: types.Message, data: dict):
 )
 async def not_correct_context_buttons(msg: types.Message):
     await msg.answer(
-        text="Не знайдено жодної кнопки."
+        text=await TranslateString(
+            "Не знайдено жодної кнопки."
+        ).translate_to_lang(msg.from_user.language_code)
     )

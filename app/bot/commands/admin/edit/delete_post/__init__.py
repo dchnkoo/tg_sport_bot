@@ -1,10 +1,10 @@
+from .....keyboards.Text import txtranslate, TranslateString
 from .....keyboards.Reply import confirm_btns, admin_btns
 from aiogram.utils.chat_action import ChatActionSender
 from .....keyboards.Inline import inline_pagination
 from .....models import ModelDataManipulation
 from aiogram.fsm.context import FSMContext
 from ....callbacks import models as clbks
-from .....keyboards.Text import Txt
 from .....FSM import models as fsm
 from aiogram.filters import and_f
 from .....routers import admin
@@ -15,22 +15,24 @@ from aiogram import types, F
     clbks.SelectCategoryForPostDelete.filter()
 )
 async def select_category_from_post_del(callback: types.CallbackQuery, callback_data: clbks.SelectCategoryForPostDelete):
-    model, page = callback_data.type, callback_data.page
+    model, page, language = callback_data.type, callback_data.page, callback_data.lang
 
     category = ModelDataManipulation(model)
 
     get, total = await category.get_data_pagination(page=page)
 
-    set_keywords = lambda x: {"type": x}
+    set_keywords = lambda x: {"type": x, "lang": language}
     await callback.message.edit_text(
-        text=f"Виберіть категорію з якої бажаєте видалити пост в {model}:",
+        text=await TranslateString(
+            f"Виберіть категорію з якої бажаєте видалити пост в {model}:"
+        ).translate_to_lang(language),
         reply_markup=inline_pagination(
             data=get,
             data_model=clbks.SelectPostToDelete,
             data_data=set_keywords(model),
             prev_model=clbks.SelectCategoryForPostDelete,
             prev_data=set_keywords(model),
-            cancel_txt=Txt.BACK,
+            cancel_txt=await txtranslate.BACK.translate_to_lang(language),
             cancel_model=clbks.EditPost,
             cancel_data=set_keywords(model),
             page=page,
@@ -42,7 +44,7 @@ async def select_category_from_post_del(callback: types.CallbackQuery, callback_
     clbks.SelectPostToDelete.filter()
 )
 async def select_post_to_delete(callback: types.CallbackQuery, callback_data: clbks.SelectPostToDelete):
-    model, identity, page = callback_data.type, callback_data.identity, callback_data.page
+    model, identity, page, language = callback_data.type, callback_data.identity, callback_data.page, callback_data.lang
 
     category = ModelDataManipulation(model)
     posts = ModelDataManipulation(model, media=True)
@@ -51,17 +53,20 @@ async def select_post_to_delete(callback: types.CallbackQuery, callback_data: cl
 
     get, total = await posts.get_data_pagination(page=page, exp=posts.table.type == category.type, get_all=False)
 
+    set_keywords = lambda x: {"type": x, "lang": language}
     await callback.message.edit_text(
-        text=f"Виберіть пост який бажаєте видалити з {category.type} в {model}:",
+        text=await TranslateString(
+            f"Виберіть пост який бажаєте видалити з {category.type} в {model}:"
+        ).translate_to_lang(language),
         reply_markup=inline_pagination(
             data=get,
             data_model=clbks.DeletePost,
-            data_data={"type": model, "category": category.id},
+            data_data=set_keywords(model) | {"category": category.id},
             prev_model=clbks.SelectPostToDelete,
-            prev_data={"type": model, "identity": identity},
-            cancel_txt=Txt.BACK,
+            prev_data=set_keywords(model) | {"identity": identity},
+            cancel_txt=await txtranslate.BACK.translate_to_lang(language),
             cancel_model=clbks.SelectCategoryForPostDelete,
-            cancel_data={"type": model},
+            cancel_data=set_keywords(model),
             page=page,
             total_pages=total
         )
@@ -76,7 +81,8 @@ async def confirm_post_delete(callback: types.CallbackQuery, callback_data: clbk
         chat_id=callback.message.chat.id,
         bot=callback.bot
     ):
-        model, category, identity = callback_data.type, callback_data.category, callback_data.identity
+        d = callback_data
+        model, category, identity, language = d.type, d.category, d.identity, d.lang
 
         await state.set_state(fsm.ConfirmPostDelete.post)
         await state.update_data(type=model, category=category, post=identity)
@@ -84,13 +90,15 @@ async def confirm_post_delete(callback: types.CallbackQuery, callback_data: clbk
         await callback.message.delete()
         await callback.bot.send_message(
             chat_id=callback.message.chat.id,
-            text="Підтвердіть видалення посту:",
+            text=await TranslateString(
+                "Підтвердіть видалення посту:"
+            ).translate_to_lang(language),
             reply_markup=confirm_btns
         )
 
 
 @admin.message(
-        and_f(fsm.ConfirmPostDelete.post, F.text == Txt.CONFIRM)
+        and_f(fsm.ConfirmPostDelete.post, F.text == txtranslate.CONFIRM)
 )
 async def confirm_to_delete_post(msg: types.Message, state: FSMContext):
     async with ChatActionSender.typing(
@@ -117,7 +125,9 @@ async def confirm_to_delete_post(msg: types.Message, state: FSMContext):
         ))
 
         await msg.answer(
-            text=message,
+            text=await TranslateString(message).translate_to_lang(
+                msg.from_user.language_code
+            ),
             reply_markup=admin_btns
         )
         
@@ -125,7 +135,7 @@ async def confirm_to_delete_post(msg: types.Message, state: FSMContext):
 
 
 @admin.message(
-    and_f(fsm.ConfirmPostDelete.post, F.text == Txt.CANCEL_TXT)
+    and_f(fsm.ConfirmPostDelete.post, F.text == txtranslate.CANCEL_TXT)
 )
 async def cancel_post_delete(msg: types.Message, state: FSMContext):
     async with ChatActionSender.typing(
@@ -135,7 +145,7 @@ async def cancel_post_delete(msg: types.Message, state: FSMContext):
         await state.clear()
 
         await msg.answer(
-            text="Скасовано.",
+            text=await TranslateString("Скасовано.").translate_to_lang(msg.from_user.language_code),
             reply_markup=admin_btns
         )
 
@@ -144,6 +154,6 @@ async def cancel_post_delete(msg: types.Message, state: FSMContext):
 )
 async def not_correct_answer_conf_post_delete(msg: types.Message):
     await msg.answer(
-        text="Виберіть один з варіантів нижче",
+        text=await TranslateString("Виберіть один з варіантів нижче").translate_to_lang(msg.from_user.language_code),
         reply_markup=confirm_btns
     )

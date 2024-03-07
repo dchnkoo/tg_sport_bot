@@ -17,10 +17,10 @@ PORT = "5432"
 DB = "test"
 
 # ADMIN
-ADMIN = json.loads(ENV.get("ADMIN", '["459557833"]'))
+ADMIN = json.loads(ENV.get("ADMIN", '[]'))
 
 # BOT TOKEN
-BOT_TOKEN = "6960403872:AAGYdk_8hHJ3nMppVGevZDA6lQbk9jsuKlA"
+BOT_TOKEN = ""
 
 
 # logging
@@ -33,7 +33,7 @@ logger.basicConfig(filename=BASE_DIR / "app/app.log", filemode="w",
 
 # ADMIN settings
 
-DATA_PER_PAGE = 2
+DATA_PER_PAGE = 4
 
 MEDIA_LIMIT = 9
 

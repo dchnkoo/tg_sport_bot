@@ -1,8 +1,8 @@
+from .....keyboards.Text import txtranslate, TranslateString
 from aiogram.utils.chat_action import ChatActionSender
 from .....keyboards.Reply import get_media_btns
 from aiogram.fsm.context import FSMContext 
 from app.settings import MEDIA_LIMIT
-from .....keyboards.Text import Txt
 from .....FSM import models as fsm
 from aiogram.filters import and_f
 from .....routers import admin
@@ -21,9 +21,11 @@ async def set_titile_post(msg: types.Message, state: FSMContext):
         await state.set_state(fsm.AddPostState.media)
 
         await msg.answer(
-            text=f"Додайте до {MEDIA_LIMIT} фото/відео:",
+            text=await TranslateString(
+                f"Додайте до {MEDIA_LIMIT} фото/відео:"
+            ).translate_to_lang(msg.from_user.language_code),
             reply_markup=get_media_btns(
-                skip=True if data.get("category") != Txt.EXESIZES else False,
+                skip=True if data.get("category") != txtranslate.EXESIZES else False,
                 go=True
             )
         )
@@ -33,5 +35,7 @@ async def set_titile_post(msg: types.Message, state: FSMContext):
 )
 async def not_correct_title(msg: types.Message):
     await msg.answer(
-        text="Введіть коректний заголовок.",
+        text=await TranslateString(
+            "Введіть коректний заголовок."
+        ).translate_to_lang(msg.from_user.language_code),
     )
